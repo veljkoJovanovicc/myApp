@@ -15,4 +15,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -f index-myApp -t myapp .
+        run: docker build -f index-myApp.dockerfile -t myapp .
