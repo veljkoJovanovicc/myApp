@@ -1,3 +1,28 @@
-- name: Test SSH connection
-  run: |
-    ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "echo 'SSH WORKS'"
+name: CI Test + SSH Check
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -f index-myApp.dockerfile -t myapp .
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "echo 'SSH WORKS - CONNECTION OK'"
